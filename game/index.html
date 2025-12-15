@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Gestos AI</title>
+    <link rel="stylesheet" href="../style.css">
+    <!-- Reusing main styles for consistency -->
+    <style>
+        body {
+            overflow: hidden;
+            background: #050510;
+        }
+
+        #game-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            font-family: 'Outfit', sans-serif;
+            color: white;
+            pointer-events: none;
+        }
+
+        .score {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .gesture-hint {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gesture-icon {
+            font-size: 2rem;
+            margin: 0 10px;
+            opacity: 0.3;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .gesture-icon.active {
+            opacity: 1;
+            transform: scale(1.2);
+            text-shadow: 0 0 15px currentColor;
+        }
+    </style>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+    <div class="ui-layer">
+        <div class="score">Puntos: 0</div>
+    </div>
+
+    <div class="gesture-hint">
+        <span id="icon-fist" class="gesture-icon" style="color: #ff0055;">✊ <span
+                style="font-size:0.5em; display:block;">Defensa</span></span>
+        <span id="icon-palm" class="gesture-icon" style="color: #00ffff;">✋ <span
+                style="font-size:0.5em; display:block;">Viento</span></span>
+        <span id="icon-point" class="gesture-icon" style="color: #ffaa00;">☝️ <span
+                style="font-size:0.5em; display:block;">Ataque</span></span>
+    </div>
+
+    <!-- Video element (hidden) -->
+    <video class="input_video" style="opacity: 0; position: absolute; z-index: -1;"></video>
+
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Visual Debug Cursors -->
+    <div id="hand-cursor"
+        style="position: absolute; width: 20px; height: 20px; border: 2px solid #00f3ff; border-radius: 50%; background: rgba(0, 243, 255, 0.2); pointer-events: none; z-index: 1000; transform: translate(-50%, -50%); display: none; box-shadow: 0 0 10px #00f3ff;">
+    </div>
+
+    <script src="game.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio Molecular AI</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            background: #0a0a15;
+            /* Dark Lab Background */
+            overflow: hidden;
+        }
+
+        #lab-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            font-family: 'Outfit', sans-serif;
+            pointer-events: none;
+        }
+
+        .mission-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            max-width: 300px;
+        }
+
+        .mission-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #00ffff;
+            margin-bottom: 10px;
+        }
+
+        .recipe {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .atom-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 1rem;
+            box-shadow: inset -5px -5px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .h-atom {
+            background: #eeeeee;
+            color: #333;
+        }
+
+        /* Hydrogen White */
+        .o-atom {
+            background: #ff4444;
+            color: white;
+        }
+
+        /* Oxygen Red */
+
+        .notification-card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: white;
+            color: #333;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
+        }
+
+        .notification-card.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .hand-hint {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-family: 'Outfit', sans-serif;
+            z-index: 5;
+        }
+    </style>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+    <div class="ui-layer">
+        <div class="mission-panel">
+            <div class="mission-title">Misión Actual</div>
+            <div class="recipe">
+                <div class="atom-icon h-atom">H</div>
+                <span>+</span>
+                <div class="atom-icon h-atom">H</div>
+                <span>+</span>
+                <div class="atom-icon o-atom">O</div>
+                <span>= H₂O</span>
+            </div>
+            <p style="margin-top:10px; opacity: 0.8; font-size: 0.9rem;">Usa tus dedos (👌 Pinza) para atrapar y unir
+                átomos.</p>
+        </div>
+    </div>
+
+    <!-- Success Notification -->
+    <div id="success-card" class="notification-card">
+        <h1 style="color: #0066ff; margin:0;">¡AGUA CREADA!</h1>
+        <p style="font-size: 1.2rem;">Has sintetizado una molécula vital.</p>
+        <div style="font-size: 4rem; margin: 20px;">💧</div>
+    </div>
+
+    <div class="hand-hint">✋ Mano abierta para explorar | 👌 Junta índice y pulgar para atrapar</div>
+
+    <!-- Video element (hidden) -->
+    <video class="input_video" style="opacity: 0; position: absolute; z-index: -1;"></video>
+
+    <canvas id="lab-canvas"></canvas>
+
+    <script src="lab.js"></script>
+</body>
+
+</html>

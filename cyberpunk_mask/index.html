@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Máscara Cyberpunk AR</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            background-color: #000;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #container {
+            position: relative;
+            width: 1280px;
+            height: 720px;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* Video is hidden, we draw everything on canvas */
+        .input_video {
+            display: none;
+        }
+
+        #output_canvas {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            transform: scaleX(-1);
+            /* Mirror effect */
+        }
+
+        .hud-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #00ffaa;
+            font-family: 'Courier New', monospace;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: rgba(0, 255, 255, 0.5);
+            animation: scan 3s linear infinite;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0.3;
+        }
+
+        @keyframes scan {
+            0% {
+                top: 0%;
+            }
+
+            100% {
+                top: 100%;
+            }
+        }
+    </style>
+    <!-- MediaPipe Face Mesh -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+    <div id="container">
+        <video class="input_video"></video>
+        <canvas id="output_canvas"></canvas>
+        <div class="scan-line"></div>
+        <div class="hud-overlay">
+            <div>SYSTEM: ONLINE</div>
+            <div>FACE ID: SCANNING...</div>
+            <div id="fps-counter">LATENCY: 12ms</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
