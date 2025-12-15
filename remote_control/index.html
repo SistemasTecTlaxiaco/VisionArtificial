@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sable Láser - PC Host</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            background: #000;
+            overflow: hidden;
+        }
+
+        #info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            max-width: 400px;
+        }
+
+        .id-display {
+            font-size: 2rem;
+            color: #00aaff;
+            font-weight: bold;
+            margin: 10px 0;
+            letter-spacing: 2px;
+        }
+
+        .status {
+            color: #888;
+            margin-top: 10px;
+        }
+
+        .instruction {
+            font-size: 0.9rem;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+    </style>
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+
+<body>
+    <div id="info-panel">
+        <div>1. Abre en tu celular: <span style="color:#ffaa00">/remote_control/controller.html</span></div>
+        <div>2. Ingresa este ID:</div>
+        <div class="id-display" id="my-id">...</div>
+        <div class="status" id="status">Esperando conexión...</div>
+        <div class="instruction">Asegúrate de que el celular y la PC estén en la misma red WiFi. Necesitarás saber la IP
+            local de tu PC (ej. 192.168.1.X) para abrirlo en el móvil.</div>
+    </div>
+    <script src="host.js"></script>
+</body>
+
+</html>

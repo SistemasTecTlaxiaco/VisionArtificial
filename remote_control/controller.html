@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Controlador Móvil</title>
+    <style>
+        body {
+            background: #111;
+            color: white;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+
+        input {
+            font-size: 2rem;
+            padding: 10px;
+            width: 150px;
+            text-align: center;
+            border-radius: 10px;
+            border: none;
+            margin: 20px;
+        }
+
+        button {
+            font-size: 1.5rem;
+            padding: 15px 30px;
+            background: #00ff00;
+            border: none;
+            border-radius: 50px;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #status {
+            margin-top: 20px;
+            color: #888;
+        }
+
+        .permissions-box {
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+</head>
+
+<body>
+
+    <h1>Control Remoto</h1>
+
+    <div id="connection-ui">
+        <p>Ingresa el ID de la PC:</p>
+        <input type="number" id="host-id-input" placeholder="1234">
+        <br>
+        <button id="connect-btn">CONECTAR</button>
+    </div>
+
+    <div id="permissions-ui" class="permissions-box">
+        <p>Se requieren permisos para usar el giroscopio.</p>
+        <button id="perm-btn" style="background: #00aaff;">Permitir Sensores</button>
+    </div>
+
+    <div id="controls-ui" style="display:none;">
+        <div style="font-size: 5rem; color: #00ff00;">🔌</div>
+        <h2>¡CONECTADO!</h2>
+        <p>Mueve tu teléfono como una espada.</p>
+        <div id="debug-vals"></div>
+    </div>
+
+    <div id="status">Listo</div>
+
+    <script src="controller.js"></script>
+</body>
+
+</html>
