@@ -50,7 +50,7 @@ function updatePlayersUI() {
 }
 
 // 2. Three.js Setup (Saber)
-let saber, renderer, scene, camera;
+let saber, renderer, scene, camera, bladeMat, glowMat;
 try {
     scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x000000, 0.02);
@@ -77,13 +77,13 @@ try {
     // Saber Blade
     const bladeGeo = new THREE.CylinderGeometry(0.08, 0.08, 3, 16);
     bladeGeo.translate(0, 2, 0);
-    const bladeMat = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    bladeMat = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     const blade = new THREE.Mesh(bladeGeo, bladeMat);
 
     // Glow
     const glowGeo = new THREE.CylinderGeometry(0.15, 0.15, 3.1, 16);
     glowGeo.translate(0, 2, 0);
-    const glowMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.3, side: THREE.BackSide });
+    glowMat = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.3, side: THREE.BackSide });
     const glow = new THREE.Mesh(glowGeo, glowMat);
 
     saber = new THREE.Group();
