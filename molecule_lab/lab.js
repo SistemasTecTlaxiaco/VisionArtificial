@@ -44,13 +44,15 @@ const LEVELS = [
 
 // --- Three.js Setup ---
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x050508, 0.03);
+scene.background = new THREE.Color(0x0a101f);
+scene.fog = new THREE.FogExp2(0x0a101f, 0.03);
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 12;
 
-const renderer = new THREE.WebGLRenderer({ canvas: canvasElement, alpha: true, antialias: true });
+const renderer = new THREE.WebGLRenderer({ canvas: canvasElement, antialias: true }); // Alpha removed to FORCE dark bg
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x0a101f, 1);
 
 // Lighting
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
