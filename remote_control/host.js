@@ -93,15 +93,24 @@ function updatePlayersUI() {
     }
 }
 
-peer.on('open', (id) => {
-    // Show short code
-    document.getElementById('my-id').innerText = shortId;
+// ============================================================
+//  Build the controller URL with current LAN IP (best effort)
+// ============================================================
+function buildControllerUrl(code) {
+    const proto = location.protocol;
+    const host = location.hostname;
+    const port = location.port ? ':' + location.port : '';
+    const base = location.pathname.replace(/\/remote_control\/.*$/, '');
+    return `${proto}//${host}${port}${base}/remote_control/controller.html?id=${code}`;
+}
 
-    // Build the controller URL using current host (works for LAN)
-    const controllerUrl = buildControllerUrl(shortId);
-    document.getElementById('server-url').innerText = controllerUrl;
+// ─── Generate UI immediately so it's not totally blank ───
+document.getElementById('my-id').innerText = shortId;
+const controllerUrl = buildControllerUrl(shortId);
+document.getElementById('server-url').innerText = controllerUrl;
 
-    // Generate QR Code
+try {
+    // Definimos explicitamente el QR
     new QRCode(document.getElementById('qrcode'), {
         text: controllerUrl,
         width: 220,
@@ -110,29 +119,28 @@ peer.on('open', (id) => {
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.M
     });
+} catch (e) {
+    console.error("QR Code Error:", e);
+    document.getElementById('status').innerText = '⚠️ Error rendering QR';
+}
 
+// ─── Peer Logic ───
+peer.on('open', (id) => {
     console.log('Host peer ID:', id);
-    console.log('Controller URL:', controllerUrl);
+    document.getElementById('status').innerText = '⏳ Servidor P2P Listo. Esperando móviles...';
 });
 
 peer.on('connection', (conn) => {
     const peerId = conn.peer;
-    // Use last 4 chars of peerId as default name
     const name = 'Alumno ' + peerId.slice(-4).toUpperCase();
     connections[peerId] = { conn, name };
     updatePlayersUI();
 
     conn.on('data', (data) => {
-        // Update saber from the LAST connected peer (or first, your choice)
-        // For demo: just use whichever sends data last
         const deg2rad = Math.PI / 180;
-        const x = data.beta  * deg2rad;
-        const y = data.alpha * deg2rad;
-        const z = -data.gamma * deg2rad;
-
-        saber.rotation.x += (x - saber.rotation.x) * 0.2;
-        saber.rotation.y += (y - saber.rotation.y) * 0.2;
-        saber.rotation.z += (z - saber.rotation.z) * 0.2;
+        saber.rotation.x += ((data.beta * deg2rad) - saber.rotation.x) * 0.2;
+        saber.rotation.y += ((data.alpha * deg2rad) - saber.rotation.y) * 0.2;
+        saber.rotation.z += ((-data.gamma * deg2rad) - saber.rotation.z) * 0.2;
     });
 
     conn.on('close', () => {
@@ -149,18 +157,6 @@ peer.on('connection', (conn) => {
 
 peer.on('error', (err) => {
     console.error('Peer error:', err);
+    document.getElementById('status').innerText = '❌ Error P2P: ' + err.type;
+    document.getElementById('status').style.color = '#ff3366';
 });
-
-// ============================================================
-//  Build the controller URL with current LAN IP (best effort)
-//  The browser's location.hostname is the LAN IP when served
-//  over the network; falls back gracefully.
-// ============================================================
-function buildControllerUrl(code) {
-    const proto = location.protocol;
-    const host  = location.hostname;   // e.g. 192.168.1.10
-    const port  = location.port ? ':' + location.port : '';
-    // Path: go up one level from /remote_control/ to root, then back
-    const base  = location.pathname.replace(/\/remote_control\/.*$/, '');
-    return `${proto}//${host}${port}${base}/remote_control/controller.html?id=${code}`;
-}
