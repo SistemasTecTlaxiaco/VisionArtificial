@@ -65,8 +65,8 @@ window.addEventListener('resize', () => {
 //  PeerJS – Multi-connection logic
 // ============================================================
 
+// Generar ID
 const shortId = Math.floor(1000 + Math.random() * 9000).toString();
-const peer = new Peer('ai-pres-host-' + shortId);
 
 // Map of peerId -> { conn, name }
 const connections = {};
@@ -125,38 +125,52 @@ try {
 }
 
 // ─── Peer Logic ───
-peer.on('open', (id) => {
-    console.log('Host peer ID:', id);
-    document.getElementById('status').innerText = '⏳ Servidor P2P Listo. Esperando móviles...';
-});
+let peer;
+try {
+    peer = new Peer('ai-pres-host-' + shortId, {
+        host: '0.peerjs.com',
+        port: 443,
+        secure: true,
+        debug: 2
+    });
+} catch (e) {
+    document.getElementById('status').innerText = '❌ Error de red inicializando PeerJS.';
+}
 
-peer.on('connection', (conn) => {
-    const peerId = conn.peer;
-    const name = 'Alumno ' + peerId.slice(-4).toUpperCase();
-    connections[peerId] = { conn, name };
-    updatePlayersUI();
-
-    conn.on('data', (data) => {
-        const deg2rad = Math.PI / 180;
-        saber.rotation.x += ((data.beta * deg2rad) - saber.rotation.x) * 0.2;
-        saber.rotation.y += ((data.alpha * deg2rad) - saber.rotation.y) * 0.2;
-        saber.rotation.z += ((-data.gamma * deg2rad) - saber.rotation.z) * 0.2;
+if (peer) {
+    peer.on('open', (id) => {
+        console.log('Host peer ID:', id);
+        document.getElementById('status').innerText = '⏳ Servidor P2P Listo para Internet Global. Escanea el QR...';
     });
 
-    conn.on('close', () => {
-        delete connections[peerId];
+    peer.on('connection', (conn) => {
+        const peerId = conn.peer;
+        const name = 'Alumno ' + peerId.slice(-4).toUpperCase();
+        connections[peerId] = { conn, name };
         updatePlayersUI();
+
+        conn.on('data', (data) => {
+            const deg2rad = Math.PI / 180;
+            saber.rotation.x += ((data.beta * deg2rad) - saber.rotation.x) * 0.2;
+            saber.rotation.y += ((data.alpha * deg2rad) - saber.rotation.y) * 0.2;
+            saber.rotation.z += ((-data.gamma * deg2rad) - saber.rotation.z) * 0.2;
+        });
+
+        conn.on('close', () => {
+            delete connections[peerId];
+            updatePlayersUI();
+        });
+
+        conn.on('error', (err) => {
+            console.error('Connection error:', err);
+            delete connections[peerId];
+            updatePlayersUI();
+        });
     });
 
-    conn.on('error', (err) => {
-        console.error('Connection error:', err);
-        delete connections[peerId];
-        updatePlayersUI();
+    peer.on('error', (err) => {
+        console.error('Peer error:', err);
+        document.getElementById('status').innerText = '❌ Error P2P (Aviso: Revisa conexión wi-fi): ' + err.type;
+        document.getElementById('status').style.color = '#ff3366';
     });
-});
-
-peer.on('error', (err) => {
-    console.error('Peer error:', err);
-    document.getElementById('status').innerText = '❌ Error P2P: ' + err.type;
-    document.getElementById('status').style.color = '#ff3366';
-});
+}
