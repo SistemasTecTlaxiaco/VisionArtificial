@@ -4,13 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laboratorio Molecular AI</title>
-    <link rel="stylesheet" href="../style.css">
+    <title>Laboratorio Molecular | Ingeniería en Sistemas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Outfit:wght@400;700&display=swap"
+        rel="stylesheet">
     <style>
         body {
-            background: #0a0a15;
-            /* Dark Lab Background */
+            background: radial-gradient(circle at center, #111522 0%, #050508 100%);
             overflow: hidden;
+            margin: 0;
+            color: white;
+            font-family: 'Outfit', sans-serif;
         }
 
         #lab-canvas {
@@ -27,73 +30,105 @@
             top: 20px;
             left: 20px;
             z-index: 10;
-            font-family: 'Outfit', sans-serif;
             pointer-events: none;
         }
 
         .mission-panel {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 20px;
+            background: rgba(10, 20, 40, 0.6);
+            backdrop-filter: blur(12px);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+            max-width: 350px;
+        }
+
+        .level-badge {
+            display: inline-block;
+            background: #00f3ff;
+            color: #000;
+            padding: 3px 10px;
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            max-width: 300px;
-        }
-
-        .mission-title {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #00ffff;
+            font-weight: bold;
+            font-size: 0.8rem;
             margin-bottom: 10px;
+            text-transform: uppercase;
         }
 
-        .recipe {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .recipe-title {
             font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #fff;
             font-weight: 700;
         }
 
-        .atom-icon {
-            width: 40px;
-            height: 40px;
+        .formula {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 2.5rem;
+            color: #00f3ff;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+            margin-bottom: 15px;
+        }
+
+        .instructions {
+            font-size: 0.9rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        /* Atoms Legend */
+        .legend {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 15px;
+            justify-content: space-between;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            display: grid;
-            place-items: center;
-            font-size: 1rem;
-            box-shadow: inset -5px -5px 10px rgba(0, 0, 0, 0.5);
         }
 
-        .h-atom {
+        .dot.h {
             background: #eeeeee;
-            color: #333;
         }
 
-        /* Hydrogen White */
-        .o-atom {
+        .dot.o {
             background: #ff4444;
-            color: white;
         }
 
-        /* Oxygen Red */
+        .dot.c {
+            background: #555555;
+        }
 
+        /* Success Card */
         .notification-card {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.8);
-            background: white;
-            color: #333;
-            padding: 40px;
+            background: rgba(0, 243, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 2px solid #00f3ff;
+            color: #fff;
+            padding: 40px 60px;
             border-radius: 30px;
             text-align: center;
             opacity: 0;
             pointer-events: none;
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.3);
+            z-index: 20;
         }
 
         .notification-card.active {
@@ -101,61 +136,98 @@
             transform: translate(-50%, -50%) scale(1);
         }
 
+        .notification-card h1 {
+            margin: 0;
+            font-size: 3rem;
+            text-shadow: 0 0 15px #00f3ff;
+        }
+
+        .notification-card p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            color: #b0d0ff;
+        }
+
+        /* Gestures hint */
         .hand-hint {
             position: absolute;
             bottom: 30px;
             width: 100%;
             text-align: center;
-            color: rgba(255, 255, 255, 0.5);
-            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
             z-index: 5;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            z-index: 10;
+            color: #888;
+            text-decoration: none;
+            border: 1px solid #444;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            border-color: #00f3ff;
+            color: #00f3ff;
         }
     </style>
-    <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-    <!-- MediaPipe Hands -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
         crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
 
-    <div class="ui-layer">
-        <div class="mission-panel">
-            <div class="mission-title">Misión Actual</div>
-            <div class="recipe">
-                <div class="atom-icon h-atom">H</div>
-                <span>+</span>
-                <div class="atom-icon h-atom">H</div>
-                <span>+</span>
-                <div class="atom-icon o-atom">O</div>
-                <span>= H₂O</span>
+    <a href="../index.html" class="back-btn">
+        << Volver</a>
+
+            <div class="ui-layer">
+                <div class="mission-panel">
+                    <div class="level-badge" id="level-ui">NIVEL 1</div>
+                    <div class="recipe-title" id="title-ui">Sintetiza Agua</div>
+
+                    <div class="formula" id="formula-ui">H₂O</div>
+
+                    <p class="instructions" id="desc-ui">Une 2 átomos de Hidrógeno a 1 de Oxígeno.<br><br><i>Tira fuerte
+                            de un enlace para romperlo si te equivocas.</i></p>
+
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="dot h"></div> H (1 Enlace)
+                        </div>
+                        <div class="legend-item">
+                            <div class="dot o"></div> O (2 Enlaces)
+                        </div>
+                        <div class="legend-item">
+                            <div class="dot c"></div> C (4 Enlaces)
+                        </div>
+                    </div>
+                </div>
             </div>
-            <p style="margin-top:10px; opacity: 0.8; font-size: 0.9rem;">Usa tus dedos (👌 Pinza) para atrapar y unir
-                átomos.</p>
-        </div>
-    </div>
 
-    <!-- Success Notification -->
-    <div id="success-card" class="notification-card">
-        <h1 style="color: #0066ff; margin:0;">¡AGUA CREADA!</h1>
-        <p style="font-size: 1.2rem;">Has sintetizado una molécula vital.</p>
-        <div style="font-size: 4rem; margin: 20px;">💧</div>
-    </div>
+            <!-- Success Notification -->
+            <div id="success-card" class="notification-card">
+                <h1 id="success-text">¡MOLÉCULA CREADA!</h1>
+                <p>Preparando siguiente síntesis...</p>
+            </div>
 
-    <div class="hand-hint">✋ Mano abierta para explorar | 👌 Junta índice y pulgar para atrapar</div>
+            <div class="hand-hint">✋ Mueve la mano | 👌 Pinza (Índice+Pulgar) para atrapar y unir</div>
 
-    <!-- Video element (hidden) -->
-    <video class="input_video" style="opacity: 0; position: absolute; z-index: -1;"></video>
+            <!-- Video element (hidden) -->
+            <video class="input_video" style="opacity: 0; position: absolute; z-index: -1;"></video>
+            <canvas id="lab-canvas"></canvas>
 
-    <canvas id="lab-canvas"></canvas>
-
-    <script src="lab.js"></script>
+            <script src="lab.js"></script>
 </body>
 
 </html>
