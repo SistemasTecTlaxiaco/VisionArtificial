@@ -61,6 +61,7 @@
             font-weight: 700;
             background: linear-gradient(90deg, #fff, var(--green));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -287,6 +288,23 @@
         <div class="connected-title">¡CONECTADO!</div>
         <div class="connected-sub">Mueve el teléfono como una espada ⚔️</div>
 
+        <!-- NEW ACTION BUTTON -->
+        <button id="action-btn" style="
+            width: 100%;
+            padding: 18px;
+            font-size: 1.2rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff0055, #ffaa00);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            margin-top: 25px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
+            transition: transform 0.1s;
+        ">🎨 CAMBIAR COLOR</button>
+
         <div class="gyro-bar-wrap">
             <div class="gyro-bar">
                 <div class="axis-label">Alpha (Z)</div>
@@ -304,7 +322,7 @@
         <div id="status"></div>
     </div>
 
-    <script src="controller.js"></script>
+    <script src="controller.js?v=2"></script>
 </body>
 
 </html>

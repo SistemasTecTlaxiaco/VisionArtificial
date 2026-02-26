@@ -99,6 +99,7 @@ function startSending() {
     window.addEventListener('deviceorientation', (event) => {
         if (conn && conn.open) {
             conn.send({
+                type: 'gyro',
                 alpha: event.alpha,   // Z – compass heading
                 beta: event.beta,    // X – front/back tilt
                 gamma: event.gamma    // Y – left/right tilt
@@ -110,6 +111,19 @@ function startSending() {
             document.getElementById('val-gamma').innerText = Math.round(event.gamma ?? 0);
         }
     });
+
+    // Send action button clicks
+    const actionBtn = document.getElementById('action-btn');
+    if (actionBtn) {
+        actionBtn.addEventListener('click', () => {
+            if (conn && conn.open) {
+                conn.send({ type: 'action', action: 'changeColor' });
+                // Small visual feedback on button
+                actionBtn.style.transform = 'scale(0.9)';
+                setTimeout(() => actionBtn.style.transform = 'scale(1)', 150);
+            }
+        });
+    }
 }
 
 // ── Helpers ───────────────────────────────────────────────────

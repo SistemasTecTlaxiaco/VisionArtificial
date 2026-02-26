@@ -146,10 +146,27 @@ if (peer) {
 
         conn.on('data', (data) => {
             if (!saber) return;
-            const deg2rad = Math.PI / 180;
-            saber.rotation.x += ((data.beta * deg2rad) - saber.rotation.x) * 0.2;
-            saber.rotation.y += ((data.alpha * deg2rad) - saber.rotation.y) * 0.2;
-            saber.rotation.z += ((-data.gamma * deg2rad) - saber.rotation.z) * 0.2;
+
+            if (data.type === 'action' && data.action === 'changeColor') {
+                // Generate random sci-fi color (cyan, red, green, purple, yellow, white)
+                const colors = [0x00ff00, 0xff0000, 0x00f3ff, 0xff00ff, 0xffaa00, 0xffffff];
+                const rc = colors[Math.floor(Math.random() * colors.length)];
+                bladeMat.color.setHex(rc);
+                glowMat.color.setHex(rc);
+
+                // Add a small bounce animation to the saber to confirm
+                saber.scale.set(1.1, 1.1, 1.1);
+                setTimeout(() => saber.scale.set(1, 1, 1), 100);
+                return;
+            }
+
+            // Normal gyro updates
+            if (data.type === 'gyro' || data.alpha !== undefined) {
+                const deg2rad = Math.PI / 180;
+                saber.rotation.x += ((data.beta * deg2rad) - saber.rotation.x) * 0.2;
+                saber.rotation.y += ((data.alpha * deg2rad) - saber.rotation.y) * 0.2;
+                saber.rotation.z += ((-data.gamma * deg2rad) - saber.rotation.z) * 0.2;
+            }
         });
 
         conn.on('close', () => {
