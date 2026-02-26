@@ -4,53 +4,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Controlador Móvil</title>
+    <title>Control Remoto 🎮</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --green: #00ff88;
+            --blue: #00aaff;
+            --red: #ff3366;
+            --bg: #0a0a0f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
-            background: #111;
+            background: var(--bg);
             color: white;
-            font-family: sans-serif;
+            font-family: 'Outfit', sans-serif;
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
+            padding: 24px 20px;
             text-align: center;
+            overflow: hidden;
         }
 
-        input {
+        /* ── Animated background ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(0, 170, 255, 0.08) 0%, transparent 65%);
+            pointer-events: none;
+        }
+
+        /* ── Logo / Title ── */
+        .logo-area {
+            margin-bottom: 28px;
+        }
+
+        .logo-area .icon {
+            font-size: 3.5rem;
+            line-height: 1;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 0 16px rgba(0, 255, 136, 0.5));
+        }
+
+        .logo-area h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #fff, var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-area p {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        /* ── Card ── */
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 28px 24px;
+            width: 100%;
+            max-width: 360px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 16px;
+            font-weight: 400;
+        }
+
+        /* ── Code input ── */
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        #host-id-input {
+            flex: 1;
             font-size: 2rem;
-            padding: 10px;
-            width: 150px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: white;
             text-align: center;
-            border-radius: 10px;
-            border: none;
-            margin: 20px;
+            letter-spacing: 6px;
+            outline: none;
+            transition: border-color 0.2s;
+            width: 100%;
         }
 
-        button {
-            font-size: 1.5rem;
-            padding: 15px 30px;
-            background: #00ff00;
+        #host-id-input:focus {
+            border-color: var(--blue);
+        }
+
+        #host-id-input::placeholder {
+            color: #333;
+            letter-spacing: 4px;
+        }
+
+        /* ── Connect button ── */
+        #connect-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--blue), var(--green));
             border: none;
             border-radius: 50px;
-            color: black;
-            font-weight: bold;
+            color: #000;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: transform 0.15s, box-shadow 0.15s;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.25);
+        }
+
+        #connect-btn:active {
+            transform: scale(0.97);
+        }
+
+        #connect-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* ── Permissions block ── */
+        #permissions-ui {
+            display: none;
+        }
+
+        #permissions-ui .perm-text {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        #perm-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6600ff, #00aaff);
+            border: none;
+            border-radius: 50px;
+            color: white;
             cursor: pointer;
         }
 
-        #status {
-            margin-top: 20px;
-            color: #888;
+        /* ── Connected screen ── */
+        #controls-ui {
+            display: none;
         }
 
-        .permissions-box {
-            background: #222;
-            padding: 20px;
+        .connected-icon {
+            font-size: 5rem;
+            filter: drop-shadow(0 0 30px rgba(0, 255, 136, 0.7));
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.6));
+            }
+
+            50% {
+                transform: scale(1.08);
+                filter: drop-shadow(0 0 40px rgba(0, 255, 136, 0.9));
+            }
+        }
+
+        .connected-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--green);
+            margin-top: 12px;
+        }
+
+        .connected-sub {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        /* Gyro live indicator */
+        .gyro-bar-wrap {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        .gyro-bar {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
+            padding: 8px 6px;
+        }
+
+        .gyro-bar .axis-label {
+            font-size: 0.65rem;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .gyro-bar .axis-val {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--green);
+            margin-top: 2px;
+        }
+
+        /* ── Status text ── */
+        #status {
+            margin-top: 18px;
+            font-size: 0.8rem;
+            color: #555;
+            min-height: 20px;
+        }
+
+        #status.error-msg {
+            color: var(--red);
         }
     </style>
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
@@ -58,28 +256,53 @@
 
 <body>
 
-    <h1>Control Remoto</h1>
+    <div class="logo-area">
+        <div class="icon">⚔️</div>
+        <h1>Sable Láser</h1>
+        <p>Control remoto para la clase</p>
+    </div>
 
-    <div id="connection-ui">
-        <p>Ingresa el ID de la PC:</p>
-        <input type="number" id="host-id-input" placeholder="1234">
+    <!-- ── PERMISSIONS (iOS only) ── -->
+    <div class="card" id="permissions-ui">
+        <div class="perm-text">
+            Tu iPhone necesita permiso para acceder al giroscopio.<br>
+            Toca el botón y luego acepta.
+        </div>
+        <button id="perm-btn">🔓 Permitir Sensores</button>
+        <div id="status"></div>
+    </div>
+
+    <!-- ── CONNECTION ── -->
+    <div class="card" id="connection-ui">
+        <h2>Ingresa el código de tu profe:</h2>
+        <input type="number" id="host-id-input" placeholder="1234" inputmode="numeric" maxlength="4">
         <br>
-        <button id="connect-btn">CONECTAR</button>
+        <button id="connect-btn">⚡ CONECTAR</button>
+        <div id="status">Listo para conectar</div>
     </div>
 
-    <div id="permissions-ui" class="permissions-box">
-        <p>Se requieren permisos para usar el giroscopio.</p>
-        <button id="perm-btn" style="background: #00aaff;">Permitir Sensores</button>
-    </div>
+    <!-- ── CONNECTED ── -->
+    <div class="card" id="controls-ui">
+        <div class="connected-icon">🔦</div>
+        <div class="connected-title">¡CONECTADO!</div>
+        <div class="connected-sub">Mueve el teléfono como una espada ⚔️</div>
 
-    <div id="controls-ui" style="display:none;">
-        <div style="font-size: 5rem; color: #00ff00;">🔌</div>
-        <h2>¡CONECTADO!</h2>
-        <p>Mueve tu teléfono como una espada.</p>
-        <div id="debug-vals"></div>
+        <div class="gyro-bar-wrap">
+            <div class="gyro-bar">
+                <div class="axis-label">Alpha (Z)</div>
+                <div class="axis-val" id="val-alpha">—</div>
+            </div>
+            <div class="gyro-bar">
+                <div class="axis-label">Beta (X)</div>
+                <div class="axis-val" id="val-beta">—</div>
+            </div>
+            <div class="gyro-bar">
+                <div class="axis-label">Gamma (Y)</div>
+                <div class="axis-val" id="val-gamma">—</div>
+            </div>
+        </div>
+        <div id="status"></div>
     </div>
-
-    <div id="status">Listo</div>
 
     <script src="controller.js"></script>
 </body>

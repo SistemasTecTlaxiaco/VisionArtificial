@@ -4,59 +4,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sable Láser - PC Host</title>
-    <link rel="stylesheet" href="../style.css">
+    <title>Sable Láser – PC Host</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- QR Code generator (no dependencies) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             background: #000;
             overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+            color: white;
         }
 
+        /* ─── Info Panel (top-left) ─── */
         #info-panel {
             position: absolute;
             top: 20px;
             left: 20px;
-            color: white;
-            font-family: 'Outfit', sans-serif;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #333;
-            max-width: 400px;
+            z-index: 10;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 16px;
+            padding: 20px 24px;
+            width: 280px;
         }
 
-        .id-display {
-            font-size: 2rem;
-            color: #00aaff;
-            font-weight: bold;
-            margin: 10px 0;
+        #info-panel h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
             letter-spacing: 2px;
-        }
-
-        .status {
             color: #888;
-            margin-top: 10px;
+            margin-bottom: 10px;
         }
 
-        .instruction {
-            font-size: 0.9rem;
+        /* ─── QR Box ─── */
+        #qr-wrapper {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+
+        #qr-wrapper img, #qr-wrapper canvas {
+            display: block;
+        }
+
+        /* ─── Code Badge ─── */
+        #code-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0,170,255,0.1);
+            border: 1px solid rgba(0,170,255,0.35);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+        }
+
+        #code-badge .label {
+            font-size: 0.75rem;
+            color: #888;
+            line-height: 1.2;
+        }
+
+        #my-id {
+            font-size: 2.2rem;
+            color: #00aaff;
+            font-weight: 700;
+            letter-spacing: 4px;
+            line-height: 1;
+        }
+
+        /* ─── Status ─── */
+        #status {
+            font-size: 0.85rem;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #status.connected { color: #00ff88; }
+
+        /* ─── Players counter ─── */
+        #players-list {
             margin-top: 10px;
-            line-height: 1.4;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        .player-tag {
+            display: inline-block;
+            background: rgba(0,255,136,0.1);
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: 20px;
+            padding: 3px 10px;
+            margin: 3px 2px;
+            font-size: 0.75rem;
+            color: #00ff88;
+        }
+
+        /* ─── Network info ─── */
+        #net-info {
+            margin-top: 12px;
+            font-size: 0.72rem;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        #net-info span {
+            color: #ffaa00;
         }
     </style>
-    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 
 <body>
+
     <div id="info-panel">
-        <div>1. Abre en tu celular: <span style="color:#ffaa00">/remote_control/controller.html</span></div>
-        <div>2. Ingresa este ID:</div>
-        <div class="id-display" id="my-id">...</div>
-        <div class="status" id="status">Esperando conexión...</div>
-        <div class="instruction">Asegúrate de que el celular y la PC estén en la misma red WiFi. Necesitarás saber la IP
-            local de tu PC (ej. 192.168.1.X) para abrirlo en el móvil.</div>
+        <h3>📡 Conexión Alumnos</h3>
+
+        <!-- QR Code -->
+        <div id="qr-wrapper">
+            <div id="qrcode"></div>
+        </div>
+
+        <!-- Código manual como fallback -->
+        <div id="code-badge">
+            <div>
+                <div class="label">O escribe el código:</div>
+                <div id="my-id">···</div>
+            </div>
+        </div>
+
+        <div id="status">⏳ Esperando conexiones...</div>
+
+        <div id="players-list"></div>
+
+        <div id="net-info">
+            Servidor: <span id="server-url">—</span><br>
+            Los celulares deben estar en el mismo WiFi.
+        </div>
     </div>
+
     <script src="host.js"></script>
 </body>
 
