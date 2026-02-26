@@ -1,202 +1,275 @@
-// --- Game Constants & State ---
+// ==========================================================
+// CIBERDEFENSA AI - Ingeniería en Sistemas
+// Core Game Logic
+// ==========================================================
+
 const videoElement = document.querySelector('.input_video');
 const canvasElement = document.getElementById('game-canvas');
-const iconFist = document.getElementById('icon-fist');
-const iconPalm = document.getElementById('icon-palm');
-const iconPoint = document.getElementById('icon-point');
+const scoreEl = document.getElementById('score-val');
+const healthBar = document.getElementById('health-bar');
+const damageOverlay = document.getElementById('damage-overlay');
+const gameOverScreen = document.getElementById('game-over');
 const cursor = document.getElementById('hand-cursor');
 
+// UI Boxes
+const boxFist = document.getElementById('box-fist');
+const boxPalm = document.getElementById('box-palm');
+const boxPoint = document.getElementById('box-point');
+
+// Game State
 let score = 0;
+let health = 100;
 let gameActive = true;
 const enemies = [];
 const projectiles = [];
 const particles = [];
 let frameCount = 0;
-let lastGesture = 'neutral';
 let shieldActive = false;
 let shieldMesh = null;
+let currentLevel = 1;
+let spawnRate = 60; // Frames per spawn
 
-// --- Three.js Setup ---
+// --- Three.js Setup (Hacker Theme) ---
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x050510, 0.02);
+scene.fog = new THREE.FogExp2(0x020205, 0.04); // Dark blue/black fog
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 5;
+camera.position.z = 6;
 
 const renderer = new THREE.WebGLRenderer({ canvas: canvasElement, alpha: true, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 // Lighting
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
 scene.add(ambientLight);
 const dirLight = new THREE.DirectionalLight(0xffffff, 1);
 dirLight.position.set(0, 10, 10);
 scene.add(dirLight);
 
+// --- Grid Background (Cyberspace floor) ---
+const gridHelper = new THREE.GridHelper(50, 50, 0x00ff66, 0x002200);
+gridHelper.position.y = -3;
+scene.add(gridHelper);
+
 // --- Game Objects Builders ---
 
-// 1. Shield (Fist)
+// 1. Firewall (Fist) -> Cyan Wireframe Dome
 function createShield() {
-    const geo = new THREE.IcosahedronGeometry(1.5, 2);
-    const mat = new THREE.MeshPhongMaterial({
-        color: 0xff0055,
+    const geo = new THREE.IcosahedronGeometry(1.8, 1);
+    const mat = new THREE.MeshBasicMaterial({
+        color: 0x00ffff,
         transparent: true,
-        opacity: 0.3,
-        wireframe: true,
-        emissive: 0xff0055,
-        emissiveIntensity: 0.5
+        opacity: 0.15,
+        wireframe: true
     });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.z = 4; // Just in front of camera
-    scene.add(mesh);
-    return mesh;
+
+    // Solid core
+    const coreMat = new THREE.MeshPhongMaterial({
+        color: 0x0055ff,
+        transparent: true,
+        opacity: 0.2,
+        emissive: 0x0022ff
+    });
+
+    const group = new THREE.Group();
+    group.add(new THREE.Mesh(geo, mat));
+    group.add(new THREE.Mesh(new THREE.IcosahedronGeometry(1.6, 2), coreMat));
+
+    group.position.z = 4.5;
+    scene.add(group);
+    return group;
 }
 shieldMesh = createShield();
 shieldMesh.visible = false;
 
-// 2. Projectile (Index)
+// 2. Laser Shot (Index Point) -> Green Cylinder
 function shootProjectile(position) {
-    const geo = new THREE.SphereGeometry(0.1, 8, 8);
-    const mat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
+    if (!gameActive) return;
+
+    const geo = new THREE.CylinderGeometry(0.02, 0.02, 1, 8);
+    geo.rotateX(Math.PI / 2); // Point forward
+    const mat = new THREE.MeshBasicMaterial({ color: 0x00ff66 });
     const mesh = new THREE.Mesh(geo, mat);
 
-    // Convert screen x/y to world x/y roughly
-    // Map normalized 0..1 to -aspect..aspect
-    const aspect = window.innerWidth / window.innerHeight;
-    const x = (1 - position.x) * 10 - 5; // Mirror x
-    const y = (1 - position.y) * 6 - 3;
+    // Map screen x/y to relative world x/y
+    const x = (1 - position.x) * 12 - 6; // Mirror x, wider range
+    const y = (1 - position.y) * 8 - 4;
 
-    mesh.position.set(x, y, 4);
+    mesh.position.set(x, y, 4.5);
 
     projectiles.push({
         mesh: mesh,
-        velocity: new THREE.Vector3(0, 0, -0.5) // Shoot forward
+        velocity: new THREE.Vector3(0, 0, -0.8) // Fast laser
     });
     scene.add(mesh);
 }
 
-// 3. Enemy
+// 3. Malware (Enemy) -> Red Octahedron Spike
 function spawnEnemy() {
-    const geo = new THREE.TetrahedronGeometry(0.5);
-    const mat = new THREE.MeshPhongMaterial({ color: 0x555555, flatShading: true });
+    if (!gameActive) return;
+
+    const geo = new THREE.OctahedronGeometry(0.6, 0);
+    const mat = new THREE.MeshPhongMaterial({
+        color: 0xff0055,
+        emissive: 0x330011,
+        flatShading: true
+    });
     const mesh = new THREE.Mesh(geo, mat);
 
-    // Spawn far away random XY
-    mesh.position.x = (Math.random() - 0.5) * 10;
-    mesh.position.y = (Math.random() - 0.5) * 6;
-    mesh.position.z = -20;
+    mesh.position.x = (Math.random() - 0.5) * 14;
+    mesh.position.y = (Math.random() - 0.5) * 8;
+    mesh.position.z = -25; // Spawn deep in cyberspace
 
     scene.add(mesh);
     enemies.push({
         mesh: mesh,
-        speed: 0.05 + Math.random() * 0.05
+        speed: 0.08 + (Math.random() * 0.06) + (currentLevel * 0.02), // Faster each level
+        rotX: (Math.random() - 0.5) * 0.1,
+        rotY: (Math.random() - 0.5) * 0.1
     });
 }
 
-// 4. Particles (Explosion)
-function createExplosion(position, color) {
-    for (let i = 0; i < 8; i++) {
-        const geo = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-        const mat = new THREE.MeshBasicMaterial({ color: color });
+// 4. Data Fragments (Explosion)
+function createExplosion(position, colorHex) {
+    for (let i = 0; i < 15; i++) {
+        const geo = new THREE.BoxGeometry(0.08, 0.08, 0.08);
+        const mat = new THREE.MeshBasicMaterial({ color: colorHex });
         const mesh = new THREE.Mesh(geo, mat);
         mesh.position.copy(position);
 
         particles.push({
             mesh: mesh,
-            vel: new THREE.Vector3((Math.random() - 0.5) * 0.2, (Math.random() - 0.5) * 0.2, (Math.random() - 0.5) * 0.2),
+            vel: new THREE.Vector3((Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.4, (Math.random() - 0.5) * 0.4),
             life: 1.0
         });
         scene.add(mesh);
     }
 }
 
+// --- Status Updates ---
+function updateHUD() {
+    scoreEl.innerText = score;
+    // Level up logic
+    if (score > currentLevel * 200) {
+        currentLevel++;
+        spawnRate = Math.max(15, spawnRate - 10);
+    }
+}
+
+function takeDamage(amount) {
+    health -= amount;
+    healthBar.style.width = Math.max(0, health) + '%';
+
+    // UI Effects
+    document.querySelector('.ui-layer').classList.add('glitch');
+    damageOverlay.style.opacity = '1';
+
+    setTimeout(() => {
+        document.querySelector('.ui-layer').classList.remove('glitch');
+        damageOverlay.style.opacity = '0';
+    }, 150);
+
+    if (health <= 0) {
+        gameOver();
+    }
+}
+
+function gameOver() {
+    gameActive = false;
+    gameOverScreen.style.display = 'block';
+    document.querySelector('.ui-layer').style.display = 'none';
+    cursor.style.display = 'none';
+}
+
 // --- Main Loop ---
 function animate() {
     requestAnimationFrame(animate);
+
+    // Grid animation
+    if (gameActive) gridHelper.position.z = (gridHelper.position.z + 0.05) % 1;
+
     frameCount++;
 
-    // 1. Spawner
-    if (frameCount % 60 === 0) { // Every second-ish
+    if (gameActive && frameCount % spawnRate === 0) {
         spawnEnemy();
     }
 
-    // 2. Update Shield
-    if (shieldActive) {
+    // Shield Animation
+    if (shieldActive && gameActive) {
         shieldMesh.visible = true;
-        shieldMesh.rotation.y += 0.05;
-        shieldMesh.material.opacity = 0.3 + Math.sin(frameCount * 0.1) * 0.1;
+        shieldMesh.rotation.y += 0.02;
+        shieldMesh.rotation.x += 0.01;
     } else {
         shieldMesh.visible = false;
     }
 
-    // 3. Update Projectiles
+    // Update Projectiles
     for (let i = projectiles.length - 1; i >= 0; i--) {
         const p = projectiles[i];
         p.mesh.position.add(p.velocity);
 
-        // Remove if too far
-        if (p.mesh.position.z < -30) {
+        if (p.mesh.position.z < -35) {
             scene.remove(p.mesh);
             projectiles.splice(i, 1);
         }
     }
 
-    // 4. Update Enemies
+    // Update Enemies
     for (let i = enemies.length - 1; i >= 0; i--) {
         const e = enemies[i];
-        e.mesh.position.z += e.speed;
-        e.mesh.rotation.x += 0.02;
-        e.mesh.rotation.y += 0.02;
 
-        // Collision: Enemy vs Player (Screen)
-        if (e.mesh.position.z > 4) {
-            if (shieldActive) {
-                // Blocked!
-                createExplosion(e.mesh.position, 0xff0055);
-                scene.remove(e.mesh);
-                enemies.splice(i, 1);
-                score += 5;
-            } else {
-                // Hit!
-                // Flash red screen or something
-                scene.remove(e.mesh);
-                enemies.splice(i, 1);
-                score = Math.max(0, score - 10);
-                document.querySelector('.score').style.color = 'red';
-                setTimeout(() => document.querySelector('.score').style.color = '#00ffff', 200);
-            }
-            updateScore();
+        if (!gameActive) {
+            e.mesh.rotation.y += 0.01;
             continue;
         }
 
-        // Collision: Enemy vs Projectile
+        e.mesh.position.z += e.speed;
+        e.mesh.rotation.x += e.rotX;
+        e.mesh.rotation.y += e.rotY;
+
+        // Collision: Enemy vs Player / Shield
+        if (e.mesh.position.z > 4.5) {
+            if (shieldActive) {
+                // Blocked by Firewall
+                createExplosion(e.mesh.position, 0x00ffff);
+                score += 10;
+            } else {
+                // System Damage!
+                takeDamage(15);
+                createExplosion(e.mesh.position, 0xff0000);
+            }
+            scene.remove(e.mesh);
+            enemies.splice(i, 1);
+            updateHUD();
+            continue;
+        }
+
+        // Collision: Enemy vs Laser
         for (let j = projectiles.length - 1; j >= 0; j--) {
             const p = projectiles[j];
             const dist = p.mesh.position.distanceTo(e.mesh.position);
 
-            if (dist < 0.8) {
-                // Hit!
-                createExplosion(e.mesh.position, 0xffaa00);
-
+            if (dist < 0.9) {
+                // Deleted Malware
+                createExplosion(e.mesh.position, 0x00ff66);
                 scene.remove(e.mesh);
                 enemies.splice(i, 1);
-
                 scene.remove(p.mesh);
                 projectiles.splice(j, 1);
 
-                score += 10;
-                updateScore();
-                break; // Enemy dead, stop checking projectiles
+                score += 25;
+                updateHUD();
+                break;
             }
         }
     }
 
-    // 5. Update Particles
+    // Update Particles
     for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.mesh.position.add(p.vel);
-        p.life -= 0.05;
-        p.mesh.scale.setScalar(p.life);
+        p.life -= 0.03;
+        p.mesh.scale.setScalar(Math.max(0, p.life));
 
         if (p.life <= 0) {
             scene.remove(p.mesh);
@@ -208,101 +281,80 @@ function animate() {
 }
 animate();
 
-function updateScore() {
-    document.querySelector('.score').innerText = `Puntos: ${score}`;
-}
-
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// --- Logic Hook ---
+// --- MediaPipe Gesture Logic ---
+let lastShotTime = 0;
+
 function handleGestureAction(gesture, landmarks) {
+    if (!gameActive) return;
+
+    // Reset boxes UI
+    boxFist.classList.remove('active');
+    boxPalm.classList.remove('active');
+    boxPoint.classList.remove('active');
+
     if (gesture === 'fist') {
         shieldActive = true;
+        boxFist.classList.add('active');
     } else {
         shieldActive = false;
     }
 
     if (gesture === 'point') {
-        // Auto-fire every few frames if holding point
-        if (frameCount % 10 === 0) {
-            shootProjectile(landmarks[8]); // Tip of index
+        boxPoint.classList.add('active');
+        // Auto-fire limiter (every 8 frames)
+        if (frameCount - lastShotTime > 8) {
+            shootProjectile(landmarks[8]); // Index tip
+            lastShotTime = frameCount;
         }
     }
 
     if (gesture === 'palm') {
-        // Force Push: Move enemies back
+        boxPalm.classList.add('active');
+        // Purge (Force Push) - visually moves elements back
         enemies.forEach(e => {
-            if (e.mesh.position.z > -10) {
-                e.mesh.position.z -= 0.5; // Push back
+            if (e.mesh.position.z > -10 && e.mesh.position.z < 3) {
+                e.mesh.position.z -= 0.6; // Push malware back
             }
         });
     }
 }
 
-// --- MediaPipe Logic ---
-
+// MediaPipe Finger Helper
 function detectGesture(landmarks) {
-    // Basic finger status (Open/Closed)
-    // Tips: 8, 12, 16, 20
-    // PIP joints: 6, 10, 14, 18
-
-    // Check if fingers are extended (Tip higher than PIP in Y - wait, Y is down in screen coords?)
-    // Actually, distance from wrist (0) is more reliable for general poses.
-
-    // Simple logic:
-    // Index(8) distance to Wrist(0) vs IndexPIP(6) distance to Wrist(0)
-
     const wrist = landmarks[0];
+    const dist = (p1, p2) => Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 
     const isFingerExtended = (tipIdx, pipIdx) => {
-        const dTip = dist(landmarks[tipIdx], wrist);
-        const dPip = dist(landmarks[pipIdx], wrist);
-        return dTip > dPip * 1.2; // Tip significantly further
+        return dist(landmarks[tipIdx], wrist) > dist(landmarks[pipIdx], wrist) * 1.25;
     };
-
-    const dist = (p1, p2) => Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 
     const indexExt = isFingerExtended(8, 6);
     const middleExt = isFingerExtended(12, 10);
     const ringExt = isFingerExtended(16, 14);
     const pinkyExt = isFingerExtended(20, 18);
-    // Thumb is tricky, ignore for basic logic for now or check angle
 
-    // 1. FIST: All fingers closed
-    if (!indexExt && !middleExt && !ringExt && !pinkyExt) {
-        return 'fist';
-    }
-
-    // 2. PALM: All fingers open
-    if (indexExt && middleExt && ringExt && pinkyExt) {
-        return 'palm';
-    }
-
-    // 3. POINT: Index open, others closed
-    if (indexExt && !middleExt && !ringExt && !pinkyExt) {
-        return 'point';
-    }
+    if (!indexExt && !middleExt && !ringExt && !pinkyExt) return 'fist';
+    if (indexExt && middleExt && ringExt && pinkyExt) return 'palm';
+    if (indexExt && !middleExt && !ringExt && !pinkyExt) return 'point';
 
     return 'neutral';
 }
 
 function onResults(results) {
-    // Reset Icons
-    iconFist.classList.remove('active');
-    iconPalm.classList.remove('active');
-    iconPoint.classList.remove('active');
+    if (!gameActive) return;
 
-    // Reset Cursor
     cursor.style.display = 'none';
 
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
         const landmarks = results.multiHandLandmarks[0];
 
-        // Update Cursor
+        // Move target cursor
         const tip = landmarks[8];
         const x = (1 - tip.x) * window.innerWidth;
         const y = tip.y * window.innerHeight;
@@ -311,38 +363,31 @@ function onResults(results) {
         cursor.style.display = 'block';
 
         const gesture = detectGesture(landmarks);
-
-        // Update UI
-        if (gesture === 'fist') iconFist.classList.add('active');
-        if (gesture === 'palm') iconPalm.classList.add('active');
-        if (gesture === 'point') iconPoint.classList.add('active');
-
-        // Trigger Game Logic
         handleGestureAction(gesture, landmarks);
+
     } else {
-        // No hands
         shieldActive = false;
+        boxFist.classList.remove('active');
+        boxPalm.classList.remove('active');
+        boxPoint.classList.remove('active');
     }
 }
 
 const hands = new Hands({
-    locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-    }
+    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
 });
 
 hands.setOptions({
-    maxNumHands: 1, // Single player for now?
+    maxNumHands: 1,
     modelComplexity: 0,
     minDetectionConfidence: 0.5,
     minTrackingConfidence: 0.5
 });
-
 hands.onResults(onResults);
 
 const cameraUtils = new Camera(videoElement, {
     onFrame: async () => {
-        await hands.send({ image: videoElement });
+        if (gameActive) await hands.send({ image: videoElement });
     },
     width: 640,
     height: 480

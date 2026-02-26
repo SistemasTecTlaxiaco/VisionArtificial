@@ -4,13 +4,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego de Gestos AI</title>
-    <link rel="stylesheet" href="../style.css">
-    <!-- Reusing main styles for consistency -->
+    <title>Ciberdefensa AI | Ingeniería en Sistemas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             overflow: hidden;
-            background: #050510;
+            background: #020205;
+            /* Black with a tiny hint of blue */
+            font-family: 'Share Tech Mono', monospace;
+            /* Hacker font */
+            color: #00ff66;
+        }
+
+        /* Scanlines overlay for terminal feel */
+        body::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 20;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
         }
 
         #game-canvas {
@@ -24,19 +48,89 @@
 
         .ui-layer {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            top: 30px;
+            left: 30px;
             z-index: 10;
-            font-family: 'Outfit', sans-serif;
-            color: white;
             pointer-events: none;
+            background: rgba(0, 20, 0, 0.6);
+            border: 1px solid #00ff66;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+            backdrop-filter: blur(5px);
         }
 
-        .score {
-            font-size: 2rem;
+        /* Glitch animation class */
+        .glitch {
+            animation: glitch 0.2s linear infinite alternate;
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: translate(0)
+            }
+
+            20% {
+                transform: translate(-2px, 2px)
+            }
+
+            40% {
+                transform: translate(-2px, -2px)
+            }
+
+            60% {
+                transform: translate(2px, 2px)
+            }
+
+            80% {
+                transform: translate(2px, -2px)
+            }
+
+            100% {
+                transform: translate(0)
+            }
+        }
+
+        .system-title {
+            font-size: 1rem;
+            color: #00ff66;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-bottom: 1px dashed #00ff66;
+            padding-bottom: 5px;
+        }
+
+        .score-display {
+            font-size: 2.5rem;
             font-weight: 700;
             color: #00ffff;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            text-shadow: 0 0 15px #00ffff;
+            margin-bottom: 15px;
+        }
+
+        .health-bar-container {
+            width: 250px;
+            height: 15px;
+            border: 1px solid #ff0055;
+            background: rgba(255, 0, 85, 0.1);
+            margin-top: 5px;
+            position: relative;
+        }
+
+        #health-bar {
+            height: 100%;
+            width: 100%;
+            background: #ff0055;
+            box-shadow: 0 0 10px #ff0055;
+            transition: width 0.3s ease;
+        }
+
+        .health-label {
+            font-size: 0.8rem;
+            color: #ff0055;
+            margin-bottom: 2px;
+            text-transform: uppercase;
         }
 
         .gesture-hint {
@@ -46,63 +140,200 @@
             transform: translateX(-50%);
             z-index: 10;
             text-align: center;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px 20px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 15, 20, 0.8);
+            padding: 15px 30px;
+            border-radius: 5px;
+            border: 1px solid #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+            display: flex;
+            gap: 30px;
+        }
+
+        .gesture-box {
+            text-align: center;
         }
 
         .gesture-icon {
-            font-size: 2rem;
-            margin: 0 10px;
+            font-size: 2.5rem;
             opacity: 0.3;
-            transition: opacity 0.2s, transform 0.2s;
+            transition: all 0.2s;
+            display: block;
+            margin-bottom: 5px;
+            filter: grayscale(100%);
         }
 
-        .gesture-icon.active {
+        .gesture-label {
+            font-size: 0.75rem;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Active states */
+        .gesture-box.active .gesture-icon {
             opacity: 1;
-            transform: scale(1.2);
-            text-shadow: 0 0 15px currentColor;
+            transform: scale(1.1);
+            filter: grayscale(0%);
+            text-shadow: 0 0 20px currentColor;
+        }
+
+        #box-fist.active .gesture-label {
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        #box-point.active .gesture-label {
+            color: #00ff66;
+            text-shadow: 0 0 10px #00ff66;
+        }
+
+        #box-palm.active .gesture-label {
+            color: #ff0055;
+            text-shadow: 0 0 10px #ff0055;
+        }
+
+        /* Damage Overlay */
+        #damage-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(transparent 50%, rgba(255, 0, 0, 0.4) 150%);
+            z-index: 5;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.1s;
+        }
+
+        /* Return warning */
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 30;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff0055;
+            padding: 40px;
+            box-shadow: 0 0 50px rgba(255, 0, 85, 0.5);
+            display: none;
+        }
+
+        #game-over h1 {
+            color: #ff0055;
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        #game-over p {
+            color: #fff;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .btn-restart {
+            background: transparent;
+            color: #00ff66;
+            border: 1px solid #00ff66;
+            padding: 10px 20px;
+            font-family: 'Share Tech Mono';
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-restart:hover {
+            background: #00ff66;
+            color: #000;
+            box-shadow: 0 0 20px #00ff66;
+        }
+
+        /* Back to main CTA */
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            z-index: 10;
+            color: #888;
+            text-decoration: none;
+            border: 1px solid #444;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            border-color: #00ffff;
+            color: #00ffff;
+            box-shadow: 0 0 10px #00ffff;
         }
     </style>
-    <!-- Three.js -->
+    <!-- Three.js & Processing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <!-- MediaPipe Hands -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
         crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
-        crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
 
-    <div class="ui-layer">
-        <div class="score">Puntos: 0</div>
-    </div>
+    <a href="../index.html" class="back-btn">
+        << Cerrar Consola</a>
 
-    <div class="gesture-hint">
-        <span id="icon-fist" class="gesture-icon" style="color: #ff0055;">✊ <span
-                style="font-size:0.5em; display:block;">Defensa</span></span>
-        <span id="icon-palm" class="gesture-icon" style="color: #00ffff;">✋ <span
-                style="font-size:0.5em; display:block;">Viento</span></span>
-        <span id="icon-point" class="gesture-icon" style="color: #ffaa00;">☝️ <span
-                style="font-size:0.5em; display:block;">Ataque</span></span>
-    </div>
+            <div id="damage-overlay"></div>
 
-    <!-- Video element (hidden) -->
-    <video class="input_video" style="opacity: 0; position: absolute; z-index: -1;"></video>
+            <div class="ui-layer">
+                <div class="system-title">Terminal > sys.defend_node()</div>
+                <div class="score-display">DATA: <span id="score-val">0</span> KB</div>
 
-    <canvas id="game-canvas"></canvas>
+                <div class="health-label">/// ESTADO DEL FIREWALL ///</div>
+                <div class="health-bar-container">
+                    <div id="health-bar"></div>
+                </div>
+            </div>
 
-    <!-- Visual Debug Cursors -->
-    <div id="hand-cursor"
-        style="position: absolute; width: 20px; height: 20px; border: 2px solid #00f3ff; border-radius: 50%; background: rgba(0, 243, 255, 0.2); pointer-events: none; z-index: 1000; transform: translate(-50%, -50%); display: none; box-shadow: 0 0 10px #00f3ff;">
-    </div>
+            <!-- Controles en la parte inferior -->
+            <div class="gesture-hint">
+                <div class="gesture-box" id="box-fist">
+                    <span class="gesture-icon" style="color: #00ffff;">✊</span>
+                    <span class="gesture-label">Firewall (Escudo)</span>
+                </div>
+                <div class="gesture-box" id="box-point">
+                    <span class="gesture-icon" style="color: #00ff66;">☝️</span>
+                    <span class="gesture-label">Disparo Láser</span>
+                </div>
+                <div class="gesture-box" id="box-palm">
+                    <span class="gesture-icon" style="color: #ff0055;">✋</span>
+                    <span class="gesture-label">Purga (Empuje)</span>
+                </div>
+            </div>
 
-    <script src="game.js"></script>
+            <!-- Game Over Screen -->
+            <div id="game-over">
+                <h1>SISTEMA COMPROMETIDO</h1>
+                <p>El malware ha penetrado la red.</p>
+                <button class="btn-restart" onclick="location.reload()">REINICIAR SISTEMA</button>
+            </div>
+
+            <!-- Video element (hidden) -->
+            <video class="input_video" style="opacity: 0; position: absolute; z-index: -1;"></video>
+            <canvas id="game-canvas"></canvas>
+
+            <!-- Visual Debug Cursors -->
+            <div id="hand-cursor"
+                style="position: absolute; width: 25px; height: 25px; border: 2px solid #00ff66; border-radius: 5px; background: rgba(0, 255, 102, 0.1); pointer-events: none; z-index: 1000; transform: translate(-50%, -50%); display: none; box-shadow: 0 0 15px #00ff66;">
+                <div
+                    style="position: absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:4px; height:4px; background:#00ff66; border-radius:50%;">
+                </div>
+            </div>
+
+            <script src="game.js"></script>
 </body>
 
 </html>

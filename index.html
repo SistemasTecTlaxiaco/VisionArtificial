@@ -4,180 +4,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>¿Qué estudia la IA?</title>
+    <title>Ingeniería en Sistemas | Crea el Futuro</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap" rel="stylesheet">
 </head>
 
 <body>
+    <!-- Fondo 3D Interactivo -->
     <canvas id="bg-canvas"></canvas>
 
+    <!-- Overlay de red o líneas (opcional visual) -->
+    <div class="cyber-grid"></div>
+
+    <!-- Navegación Superior -->
+    <nav class="top-nav">
+        <div class="logo">💻 <span>Sistemas</span></div>
+        <a href="#proyectos" class="nav-cta">Ver Laboratorios</a>
+    </nav>
+
     <div class="scrolly-container">
-        <!-- Section 1: Intro -->
+        <!-- Section 1: Hero (Sphere) -->
         <section class="step" data-shape="sphere">
-            <div class="content-box">
-                <h1>La Inteligencia Artificial</h1>
-                <p>No es solo código. Es el estudio de cómo simular la cognición humana a través de máquinas.</p>
-                <div class="scroll-indicator">Haz scroll para explorar</div>
+            <div class="content-box glass-card hero-card">
+                <div class="tag">Admisión 2026</div>
+                <h1>Ingeniería en <br><span class="neon-text">Sistemas</span></h1>
+                <p>No solo uses la tecnología, <strong>conviértete en su creador</strong>. Domina el código, la IA y
+                    transforma ideas en realidades digitales que cambien el mundo.</p>
+                <div class="scroll-indicator">
+                    <span>Descubre tu potencial</span>
+                    <div class="chevron"></div>
+                </div>
             </div>
         </section>
 
-        <!-- Section 2: Characteristics (New) -->
+        <!-- Section 2: Paradigmas (Torus) -->
         <section class="step" data-shape="torus">
-            <div class="content-box align-left">
-                <h2>Características Clave</h2>
-                <p><strong>Adaptabilidad:</strong> A diferencia del software tradicional, la IA se ajusta y mejora con
-                    nueva información.</p>
-                <p><strong>Automatización:</strong> Realiza tareas cognitivas complejas sin intervención humana
-                    constante.</p>
-            </div>
-        </section>
-
-        <!-- Section 3: Machine Learning -->
-        <section class="step" data-shape="brain">
-            <div class="content-box align-right">
-                <h2>Aprendizaje Automático</h2>
-                <p>La IA estudia algoritmos que aprenden de los datos. Como un cerebro digital, identifica patrones
-                    invisibles para el ojo humano.</p>
-            </div>
-        </section>
-
-        <!-- Section 4: Computer Vision / Perception -->
-        <section class="step" data-shape="grid">
-            <div class="content-box align-left">
-                <h2>Percepción y Visión</h2>
-                <p>Enseña a las máquinas a "ver" y "entender" el mundo físico. Desde reconocer rostros hasta
-                    diagnósticos médicos de alta precisión.</p>
-            </div>
-        </section>
-
-        <!-- Section 5: Use Cases (New) -->
-        <section class="step" data-shape="cube">
-            <div class="content-box align-right">
-                <h2>Casos de Uso Reales</h2>
-                <ul style="list-style: none; margin-top: 10px;">
-                    <li style="margin-bottom: 8px;">🏥 <strong>Salud:</strong> Detección temprana de enfermedades.</li>
-                    <li style="margin-bottom: 8px;">🎨 <strong>Creatividad:</strong> Generación de arte y música.</li>
-                    <li>📊 <strong>Finanzas:</strong> Predicción de mercados y detección de fraude.</li>
+            <div class="content-box align-left glass-card">
+                <div class="icon-box">🌐</div>
+                <h2>Conquista la Red</h2>
+                <p>Aprende las arquitecturas más modernas. Desde Desarrollo Web Full-Stack, Aplicaciones Móviles, hasta
+                    la nube (Cloud Computing). Crea el software de la próxima generación.</p>
+                <ul class="feature-list">
+                    <li>✓ Frontend & Backend Dev</li>
+                    <li>✓ Cloud & DevOps</li>
+                    <li>✓ Arquitectura de Software</li>
                 </ul>
             </div>
         </section>
 
-        <!-- Section 6: Data / Future -->
+        <!-- Section 3: Inteligencia Artificial (Brain) -->
+        <section class="step" data-shape="brain">
+            <div class="content-box align-right glass-card">
+                <div class="icon-box">🧠</div>
+                <h2>Inteligencia Artificial</h2>
+                <p>El código evolucionó. Entrena modelos de Machine Learning y Visión por Computadora. Literalmente
+                    aprenderás a darle un <strong>cerebro</strong> a las máquinas.</p>
+                <ul class="feature-list">
+                    <li>✓ Redes Neuronales</li>
+                    <li>✓ Procesamiento de Lenguaje Natural</li>
+                    <li>✓ Deep Learning</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 4: Datos y Ciberseguridad (Grid) -->
+        <section class="step" data-shape="grid">
+            <div class="content-box align-left glass-card">
+                <div class="icon-box">🛡️</div>
+                <h2>Ciberseguridad y Datos</h2>
+                <p>En un mundo hiperconectado, la información es poder. Aprenderás a encriptar, proteger sistemas contra
+                    hackers y a minar grandes volúmenes de Big Data.</p>
+            </div>
+        </section>
+
+        <!-- Section 5: Hardware & IoT (Cube) -->
+        <section class="step" data-shape="cube">
+            <div class="content-box align-right glass-card">
+                <div class="icon-box">🤖</div>
+                <h2>Internet de las Cosas</h2>
+                <p>Conecta el mundo físico con el digital. Robotica, automatización de casas (Smart Homes) y desarrollo
+                    de microcontroladores.</p>
+            </div>
+        </section>
+
+        <!-- Section 6: Evolución Continua (Helix) -->
         <section class="step" data-shape="helix">
-            <div class="content-box align-center">
-                <h2>El Futuro de los Datos</h2>
-                <p>Analiza cantidades masivas de información para predecir futuros, optimizar recursos y resolver
-                    problemas complejos.</p>
+            <div class="content-box align-center glass-card">
+                <h2>Tu ADN será el código</h2>
+                <p>La carrera con mayor demanda laboral a nivel mundial, los sueldos más competitivos y la oportunidad
+                    de trabajar desde cualquier parte del mundo.</p>
             </div>
         </section>
 
-        <section class="step" data-shape="sphere">
-            <div class="content-box">
-                <h2>Explora el Potencial</h2>
-                <p>La IA es la nueva frontera de la humanidad.</p>
+        <!-- Section 7: Proyectos y Laboratorios (Sphere) -->
+        <section class="step" id="proyectos" data-shape="sphere">
+            <div class="content-box align-center glass-card lab-card">
+                <h2>Laboratorios Interactivos</h2>
+                <p>Lo que ves de fondo es lo que programarás. Explora algunos proyectos desarrollados en clase:</p>
+
+                <div class="lab-buttons">
+                    <a href="sphere_demo/index.html" class="nav-btn btn-cyan">🔮 Partículas 3D</a>
+                    <a href="game/index.html" class="nav-btn btn-orange">🎮 Game Dev</a>
+                    <a href="cyberpunk_mask/index.html" class="nav-btn btn-green">🎭 Visión AI</a>
+                    <a href="molecule_lab/index.html" class="nav-btn btn-pink">🧪 Simulador Químico</a>
+                    <a href="remote_control/index.html" class="nav-btn btn-white">📱 Interfaz Móvil</a>
+                </div>
+
+                <a href="#" class="main-cta-btn">Inscripciones Abiertas</a>
             </div>
         </section>
     </div>
 
-    <!-- MediaPipe Hands (Specific Stable Version) -->
-    <!-- MediaPipe Utils -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-
-    <!-- Hidden Video for Tracking (Opacity 0 so it renders) -->
-    <video class="input_video" style="position: absolute; opacity: 0; pointer-events: none; z-index: -1;"
-        playsinline></video>
-
-    <!-- UI: Interactive Buttons -->
-    <div
-        style="position: fixed; bottom: 40px; right: 40px; z-index: 100; display: flex; flex-direction: row; gap: 30px; align-items: center;">
-
-        <!-- 1. Sphere (Cyan) -->
-        <a href="sphere_demo/index.html" class="nav-btn" style="
-            background: linear-gradient(135deg, #00f3ff, #0066ff);
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
-            color: #000;
-        ">
-            🔮 ESFERA
-        </a>
-
-        <!-- 2. Game (Red/Orange) -->
-        <a href="game/index.html" class="nav-btn" style="
-            background: linear-gradient(135deg, #ffaa00, #ff0055);
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
-            color: white;
-        ">
-            🎮 JUEGO
-        </a>
-
-        <!-- 3. Mask (Green/Lime) -->
-        <a href="cyberpunk_mask/index.html" class="nav-btn" style="
-            background: linear-gradient(135deg, #ccff00, #00ff66);
-            box-shadow: 0 0 20px rgba(0, 255, 102, 0.4);
-            color: #000;
-        ">
-            🎭 MÁSCARA
-        </a>
-
-        <!-- 4. Lab (Purple/Pink) -->
-        <a href="molecule_lab/index.html" class="nav-btn" style="
-            background: linear-gradient(135deg, #d53369, #daae51);
-            box-shadow: 0 0 20px rgba(213, 51, 105, 0.4);
-            color: #fff;
-        ">
-            🧪 QUÍMICA
-        </a>
-
-        <!-- 5. Remote (White/Silver) -->
-        <a href="remote_control/index.html" class="nav-btn" style="
-            background: linear-gradient(135deg, #ffffff, #aaaaaa);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
-            color: #000;
-        ">
-            📱 CONTROL
-        </a>
-
-    </div>
-
-    <!-- Inline styles for consistency across buttons -->
-    <style>
-        .nav-btn {
-            width: 160px;
-            /* Fixed width for uniformity */
-            height: 50px;
-            /* Fixed height */
-            border: none;
-            border-radius: 50px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-transform: uppercase;
-        }
-
-        .nav-btn:hover {
-            transform: translateY(-5px) scale(1.05);
-            filter: brightness(1.1);
-        }
-    </style>
-
-    <!-- Import Three.js and GSAP via CDM for simplicity in this setup -->
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            }
-        }
-    </script>
-    <script type="module" src="main.js"></script>
+    <!-- Scripts Clásicos (Para funcionar sin servidor local) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="main.js"></script>
 </body>
 
 </html>
