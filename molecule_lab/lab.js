@@ -44,7 +44,7 @@ const LEVELS = [
 
 // --- Three.js Setup ---
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0xffffff, 0.02);
+scene.fog = new THREE.FogExp2(0x050508, 0.03);
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 12;
@@ -53,7 +53,7 @@ const renderer = new THREE.WebGLRenderer({ canvas: canvasElement, alpha: true, a
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 // Lighting
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 const pointLight = new THREE.PointLight(0xffffff, 1.2);
 pointLight.position.set(5, 8, 8);
@@ -61,7 +61,7 @@ scene.add(pointLight);
 
 // --- Cursor ---
 const cursorGeo = new THREE.TorusGeometry(0.3, 0.05, 16, 32);
-const cursorMat = new THREE.MeshBasicMaterial({ color: 0x0066ff, transparent: true, opacity: 0.8 });
+const cursorMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.8 });
 const cursorMesh = new THREE.Mesh(cursorGeo, cursorMat);
 scene.add(cursorMesh);
 
@@ -74,10 +74,10 @@ scene.add(centerSpinGroup);
 
 // --- Builders ---
 function getAtomProps(type) {
-    if (type === 'H') return { r: 0.35, color: 0xcccccc, maxBonds: 1 }; // Darker gray for white bg
+    if (type === 'H') return { r: 0.35, color: 0xeeeeee, maxBonds: 1 };
     if (type === 'O') return { r: 0.60, color: 0xff0044, maxBonds: 2 }; // Fixed Valency for this simple logic (O needs 2)
     if (type === 'C') return { r: 0.70, color: 0x555555, maxBonds: 4 };
-    return { r: 0.4, color: 0xcccccc, maxBonds: 1 };
+    return { r: 0.4, color: 0xffffff, maxBonds: 1 };
 }
 
 function createAtom(type, x, y) {
@@ -114,7 +114,7 @@ function createBondVisual() {
     const geo = new THREE.CylinderGeometry(0.08, 0.08, 1, 8);
     // Rotate so it aligns along Z initially, helps when using lookAt later
     geo.rotateX(Math.PI / 2);
-    const mat = new THREE.MeshPhongMaterial({ color: 0x0066ff, emissive: 0x002266, transparent: true, opacity: 0.8 });
+    const mat = new THREE.MeshPhongMaterial({ color: 0x00f3ff, emissive: 0x0044aa, transparent: true, opacity: 0.8 });
     const mesh = new THREE.Mesh(geo, mat);
     scene.add(mesh);
     return mesh;
@@ -209,10 +209,10 @@ function animate() {
     cursorMesh.rotation.y += 0.05;
 
     if (isPinching) {
-        cursorMesh.material.color.setHex(0xff6600);
+        cursorMesh.material.color.setHex(0xffaa00);
         cursorMesh.scale.setScalar(0.7);
     } else {
-        cursorMesh.material.color.setHex(0x0066ff);
+        cursorMesh.material.color.setHex(0x00f3ff);
         cursorMesh.scale.setScalar(1);
     }
 
